@@ -1,50 +1,54 @@
+# Import necessary libraries
+import tensorflow as tf
 import numpy as np
-import random
 import os
-from PIL import Image
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 import matplotlib.pyplot as plt
+import random
 
+# Set up the path for your dataset
+dataset_path = 'C:/Users/Ewan Lee/OneDrive/Desktop/NJIT Stuff/F24/CS 375 HON/Project/CS375H01_project_BCD/Dataset'
+healthy_path = os.path.join(dataset_path, 'healthy')
+tumor_path = os.path.join(dataset_path, 'tumor')
 
-# Define the directory paths
-dataset_dir = 'C:/Users/Ewan Lee/OneDrive/Desktop/NJIT Stuff/F24/CS 375 HON/Project/Dataset'
-healthy_dir = os.path.join(dataset_dir, 'healthy')
-tumor_dir = os.path.join(dataset_dir, 'tumor')
+# Constants
+img_size = 512
+input_shape = (img_size, img_size, 3)
 
-# Lists to store image file paths
-healthy_image_data = []
-tumor_image_data = []
-mri_image_data=[]
-labels=[]
+# Helper functions for loading and preprocessing the dataset
+def load_images_from_folder(folder):
+    images = []
+    for filename in os.listdir(folder):
+        img = tf.keras.preprocessing.image.load_img(os.path.join(folder, filename), target_size=(img_size, img_size))
+        if img is not None:
+            images.append(tf.keras.preprocessing.image.img_to_array(img))
+    return images
 
-# Check if the directories exist and load the image file paths
-if os.path.exists(healthy_dir):
-    for filename in os.listdir(healthy_dir):
-        if filename.endswith(('.png', '.jpg', '.jpeg', '.bmp')):
-            image_path = os.path.join(healthy_dir, filename)
-            img = Image.open(image_path)  # Open the image
-            img_array = np.array(img)  # Convert the image to a NumPy array
-            mri_image_data.append(img_array)  # Store the image data
-            labels.append("Healthy")
+# Load images for healthy and tumor categories
+healthy_images = load_images_from_folder(healthy_path)
+tumor_images = load_images_from_folder(tumor_path)
 
-if os.path.exists(tumor_dir):
-    for filename in os.listdir(tumor_dir):
-        if filename.endswith(('.png', '.jpg', '.jpeg', '.bmp')):
-            image_path = os.path.join(tumor_dir, filename)
-            img = Image.open(image_path)  # Open the image
-            img_array = np.array(img)  # Convert the image to a NumPy array
-            mri_image_data.append(img_array)  # Store the image data
-            labels.append("Tumor")
+# Labels for the dataset
+healthy_labels = ['healthy'] * len(healthy_images)
+tumor_labels = ['tumor'] * len(tumor_images)
 
+# Combine and reshape
+images = np.array(healthy_images + tumor_images)
+labels = np.array(healthy_labels + tumor_labels)
+
+# Normalize the images
+images = images / 255.0
 
 # Print the number of images loaded from each folder
-print(f"Number of images: {len(mri_image_data)}")
+print(f"Number of images: {len(images)}")
 
-i = random.randint(0, len(mri_image_data))
+i = random.randint(0, len(images))
+
+print(images[i].shape)
 
 print(f"Image at index: {i}")
-
-if mri_image_data:
-    plt.imshow(mri_image_data[i])  # Use matplotlib to display the image
-    plt.title(labels[i])  # Set a title for the image
-    plt.axis('off')  # Turn off the axis labels
-    plt.show()
+plt.imshow(images[i])  # Use matplotlib to display the image
+plt.title(labels[i])  # Set a title for the image
+plt.axis('off')  # Turn off the axis labels
+plt.show()
