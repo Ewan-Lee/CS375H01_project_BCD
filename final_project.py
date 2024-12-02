@@ -68,9 +68,31 @@ model.add(Dense(2,activation='softmax'))
 model.compile(loss='sparse_categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
 
 # Fitting the model and evaluating it to the data
-model.fit(X_train,y_train,epochs=10)
-model.evaluate(X_test,y_test)
+trained_model = model.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_test, y_test))
 
+# Display the loss and the accuracy of the model
+fig, axes = plt.subplots(2, 1, figsize=(10, 10))
+# Plot the training and validation loss in the first subplot
+axes[0].plot(trained_model.history['loss'], label='Train Loss')
+axes[0].plot(trained_model.history['val_loss'], label='Validation Loss')
+axes[0].set_title('Model Loss')
+axes[0].set_ylabel('Loss')
+axes[0].set_xlabel('Epoch')
+axes[0].legend(loc='upper right')
+
+# Plot the training and validation accuracy in the second subplot
+axes[1].plot(trained_model.history['accuracy'], label='Train Accuracy')
+axes[1].plot(trained_model.history['val_accuracy'], label='Validation Accuracy')
+axes[1].set_title('Model Accuracy')
+axes[1].set_ylabel('Accuracy')
+axes[1].set_xlabel('Epoch')
+axes[1].legend(loc='upper right')
+
+# Adjust layout for better appearance
+plt.tight_layout()
+
+# Show the combined plot
+plt.show()
 # Making predictions and storing the results, comparing percentages            
 pred=np.round(model.predict(X_test))
 result=[]
@@ -88,11 +110,13 @@ print(f"Percent of correct predictions: {percent}%")
 
 # Prints 10 random images to demonstrate prediction vs actual label
 i = random.randint(0, len(X_test))
-for _ in range(10):
-    print(f"Image at index: {i}")
+# Show sample images of both healthy and tumor
+plt.figure(figsize=(15, 10))
+for i in range(10):
+    plt.subplot(2, 10 // 2, i + 1)
     plt.imshow(X_test[i])  # Use matplotlib to display the image
     label = "Healthy" if y_test[i]==0 else "Tumor"
-    plt.title(f"Predicted: {result[i]} | Actual: {label} ")  # Set a title for the image
-    plt.axis('off')  # Turn off the axis labels
-    plt.show()
+    plt.title(f"Image at index: {i}\nPredicted: {result[i]} \nActual: {label} ")  # Set a title for the image
+    plt.axis('off')
     i = random.randint(0, len(X_test))
+plt.show()
