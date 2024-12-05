@@ -13,6 +13,7 @@ from tensorflow.keras.layers import Flatten
 from tensorflow.keras.layers import Dropout
 from tensorflow.keras.layers import Dense
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import f1_score
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -94,12 +95,16 @@ plt.tight_layout()
 # Show the combined plot
 plt.show()
 # Making predictions and storing the results, comparing percentages            
-pred=np.round(model.predict(X_test))
+y_pred=np.round(model.predict(X_test))
+# Store the results of the predictions as labels, also track true positives where having a tumor(0) is positive and healthy(1) is negative
 result=[]
-for i in range(len(pred)):
-    if (pred[i][0]==0):
+y_pred1D=[]
+for i in range(len(y_pred)):
+    if (y_pred[i][0]==0):
+        y_pred1D.append(1)
         result.append("Tumor")
     else:
+        y_pred1D.append(0)
         result.append("Healthy")
 correct=0
 for i in range(len(result)):
@@ -107,6 +112,10 @@ for i in range(len(result)):
         correct+=1
 percent=correct/len(result) * 100  
 print(f"Percent of correct predictions: {percent}%")
+
+# F1 Score evaluation
+f1 = f1_score(y_test, y_pred1D, average=None)
+print(f"F1 Score: {f1}")
 
 # Prints 10 random images to demonstrate prediction vs actual label
 i = random.randint(0, len(X_test))
