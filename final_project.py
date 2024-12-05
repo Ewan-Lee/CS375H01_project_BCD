@@ -69,7 +69,7 @@ model.add(Dense(2,activation='softmax'))
 model.compile(loss='sparse_categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
 
 # Fitting the model and evaluating it to the data
-trained_model = model.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_test, y_test))
+trained_model = model.fit(X_train, y_train, epochs=80, batch_size=32, validation_data=(X_test, y_test))
 
 # Display the loss and the accuracy of the model
 fig, axes = plt.subplots(2, 1, figsize=(10, 10))
@@ -107,9 +107,16 @@ for i in range(len(y_pred)):
         y_pred1D.append(0)
         result.append("Healthy")
 correct=0
+falsehealthy=[]
+falsetumor=[]
 for i in range(len(result)):
     if (result[i]=="Healthy" and y_test[i]==0) or (result[i]=="Tumor" and y_test[i]==1):
         correct+=1
+    else:
+        if(result[i]=="Healthy" and y_test[i]==1):
+            falsehealthy.append(i)
+        if(result[i]=="Tumor" and y_test[i]==0):
+            falsetumor.append(i) 
 percent=correct/len(result) * 100  
 print(f"Percent of correct predictions: {percent}%")
 
@@ -129,3 +136,24 @@ for i in range(10):
     plt.axis('off')
     i = random.randint(0, len(X_test))
 plt.show()
+
+# Tumor brains classified as Healthy
+plt.figure(figsize=(15, len(falsehealthy)))
+for j in range(len(falsehealthy)):
+    plt.subplot(1, len(falsehealthy), j + 1)
+    plt.imshow(X_test[falsehealthy[j]])  # Use matplotlib to display the image
+    label = "Healthy" if y_test[falsehealthy[j]]==0 else "Tumor"
+    plt.title(f"Image at index: {falsehealthy[j]}\nPredicted: {result[falsehealthy[j]]} \nActual: {label} ")  # Set a title for the image
+    plt.axis('off')
+plt.show()
+
+# Healthy brains classified as Tumors
+plt.figure(figsize=(15, len(falsetumor)))
+for k in range(len(falsetumor)):
+    plt.subplot(1, len(falsetumor), k + 1)
+    plt.imshow(X_test[falsetumor[k]])  # Use matplotlib to display the image
+    label = "Healthy" if y_test[falsetumor[k]]==0 else "Tumor"
+    plt.title(f"Image at index: {falsetumor[k]}\nPredicted: {result[falsetumor[k]]} \nActual: {label} ")  # Set a title for the image
+    plt.axis('off')
+plt.show()
+
